@@ -33,9 +33,6 @@ static int philosophersProblemText (int argc, char * argv[]);
 static int producerConsumer (int argc, char * argv[]);
 static int producerConsumer2 (int argc, char * argv[]);
 
-static int set_GMT(int argc, char * argv[]);
-static int change_char_color (int argc, char * argv[]);
-static int change_bg_color (int argc, char * argv[]);
 static int test(int argc, char * argv[]);
 static int kill_command(int argc, char * argv[]);
 
@@ -43,7 +40,6 @@ static int write_test(int argc, char * argv[]);
 static int read_test(int argc, char * argv[]);
 
 static int testFifos (int argc, char * argv[]);
-static int set_fg(int argc, char * argv[]);
 
 static int ps(int argc, char * argv[]);
 static void print_single_process(int pid);
@@ -83,9 +79,7 @@ static int ps(int argc, char * argv[]) {
   int pid_array[MAX_PROCESSES], i;
 
   get_current_pids(pid_array);
-  if(pid_array[0] == NULL)
-    printf("vacio\n");
-
+  
   for (i = 0; pid_array[i] != -1; i++) {
     print_single_process(pid_array[i]);
   }
@@ -102,51 +96,20 @@ typedef struct {
 } command;
 
 
-static int set_fg(int argc, char * argv[]) {
-  int pid, valid;
-
-  if (argc != 1) {
-    printf("Usage: set_fg [PID]\n");
-    return INVALID_ARGS;
-  }
-
-  if (!isnum(argv[0])) {
-    printf("Argument must be a integer PID\n");
-    return INVALID_ARGS;
-  }
-
-  pid = atoi(argv[0]);
-
-  sys_yield();
-
-  valid = sys_set_foreground(pid);
-
-  if (!valid) {
-    printf("Invalid pid\n");
-  }
-
-  return valid ? VALID : INVALID_ARGS;
-}
-
 /* COMMANDS ARRAY */
 static command commands[]= {{"help", help},
-							{"set_GMT", set_GMT},
 							{"time", getTime},
 							{"clear", clear},
 							{"echo", echo},
-              {"char_color", change_char_color},
-              {"bg_color", change_bg_color},
               {"test", test},
 							{"philo", philosophersProblemText},
           		{"prodcon", producerConsumer},
-              {"prodcon2", producerConsumer2},
               {"write", write_test},
               {"read", read_test},
 							{"test2", testFifos},
               {"kill", kill_command},
               {"print", print_process},
               {"ps", ps},
-              {"fg", set_fg},
               {"ipcs", print_ipcs},
               {"shell", shell}
 							};
@@ -232,36 +195,6 @@ int execute(const char *name, const char *args, int foreground) {
 /* Muestra en pantalla texto de ayuda al usuario, por ejemplo comandos existentes */
 static int help(int argc, char * argv[]){
   printf("HELP \n The supported commands are clear, help, time, ps, philo and prodcon. \n");
-
-
-
-  // printf("HELP FUNCTION -- shows the principal User Commands and its description\n\n");
-  // printf(" echo [args...]");
-  // printf("    Write arguments to the standard output. Display the args, separated by a single space character\n");
-  // printf("                   and followed by a newline, on the standard output.\n");
-
-  // printf(" clear                Clear the terminal screen.\n");
-  // printf(" time                 Display the current time on the standard output using 24hr format [hh:mm:ss]\n");
-  // printf(" set_GMT [GMT]        Set new Greenwich Mean Time. Displays new current time afterwards\n");
-  // printf(" prodcon    [size]    Commences producer consumer problem resolved with fifos.\n");
-  // printf(" prodcon2   [size]    Commences producer consumer problem resolved with variable conditions.\n");
-  // printf(" philo      [N]       Commences philosophers problem with N philosophers. Max %d.\n", MAX_PHILOSOPHERS);
-  // printf(" shell                User shell.\n" );
-  // printf(" fg         [PID]     Gives foreground to process.\n");
-
-
-  return VALID;
-}
-
-/* Setea GMT del reloj y muestra la hora actual en pantalla*/
-static int set_GMT (int argc, char * argv[]) {
-  if (argc != 1 || !isnum(argv[0]))
-    return INVALID_ARGS;
-
-  int valid = setGMT(atoi(argv[0]));
-  if (!valid)
-  	return INVALID_ARGS;
-  getTime(0, argv);
   return VALID;
 }
 
@@ -318,45 +251,6 @@ static int echo(int argc, char * argv[]) {
 }
 
 
-/* Cambia el color de la letra */
-static int change_char_color (int argc, char * argv[]) {
-  int red, green, blue;
-
-  if (argc != 3)
-    printf("Usage char_color [r,g,b]");
-
-  if (!isnum(argv[0]) || !isnum(argv[1]) || !isnum(argv[2]))
-    printf("The colors must be integers\n");
-
-  red = atoi(argv[0]);
-  green = atoi(argv[1]);
-  blue = atoi(argv[2]);
-
-  return set_char_color(red, green, blue) == 0 ? INVALID_ARGS : VALID;
-}
-
-/* Cambia el color del fondo */
-static int change_bg_color (int argc, char * argv[]) {
-  int red, green, blue;
-
-  if (argc != 3)
-    printf("Usage bg_color [r,g,b]");
-
-  if (!isnum(argv[0]) || !isnum(argv[1]) || !isnum(argv[2]))
-    printf("The colors must be integers\n");
-
-  red = atoi(argv[0]);
-  green = atoi(argv[1]);
-  blue = atoi(argv[2]);
-
-  if(set_bg_color(red, green, blue)) {
-    clear(0, argv);
-    return VALID;
-  }
-
-  return INVALID_ARGS;
-}
-
 static int philosophersProblem (int argc, char * argv[]) {
 	int p = DEFAULT_PHILOSOPHERS;
 
@@ -391,20 +285,6 @@ static int producerConsumer (int argc, char * argv[]) {
 	return VALID;
 }
 
-static int producerConsumer2 (int argc, char * argv[]) {
-  int b = DEFAULT_PRODCON_BUFFER;
-
-  if (isnum(argv[0]))
-    b = atoi(argv[0]);
-
-  if (b < 1) {
-    printf("Buffer has to have at least one slot\n");
-    return INVALID_ARGS;
-  }
-
-  start_producer_consumer_problem(b);
-  return VALID;
-}
 
 static int testFifos (int argc, char * argv[]) {
 	execpn(processRead, "fifo_test_read");
