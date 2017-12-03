@@ -1,19 +1,6 @@
-void helpShell();
-void parser(char * buffer);
+#ifndef _SHELL_H_
+#define _SHELL_H_
+
 int shell();
-void exectue(int n);
-void editor();
-void ls();
-void man(char * buffer);
-void run(char * c);
-void echoShellON();
-void echoShellOFF();
-void error(char * buffer);
-void clearShell();
-void printShellComand();
-void changeToUserEnvirnment();
-void changeToSehllEnvironment();
-void undoBackwards();
-void parser(char * buffer);
-//void ps(int argc, char * argv[]);
-//static void print_single_process(int pid);
+
+#endif

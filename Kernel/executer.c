@@ -7,7 +7,7 @@
 
 #define PAGE 0x1000
 
-#define NULL 0
+#define NULL ((void*)0)
 
 typedef int (*entry_point) (int, char **);
 

@@ -16,32 +16,33 @@ static int producerSleep = INITIAL_PROD_SLEEP;
 static int consumerSleep = INITIAL_CONS_SLEEP;
 
 void start_producer_consumer_problem(int buf_size) {
-  int empty_fd = fifo_open(PRODUCER_FIFO);
-  int full_fd = fifo_open(CONSUMER_FIFO);
+  int empty_fd = sys_fifo_op(PRODUCER_FIFO);
+  int full_fd = sys_fifo_op(CONSUMER_FIFO);
   int prod_pid, cons_pid;
   int i;
   char empty = EMPTY_SLOT;
 
   /* Llena el fifo de slots vacíos con cantidad de mensajes igual al tamaño del buffer */
   for (i = 0; i < buf_size; i++)
-    fifo_write(empty_fd, &empty, 1);
+    sys_write(empty_fd, &empty, 1);
     //write(empty_fd, &empty, 1);
 
   print_commands();
 
-  prod_pid = execpn(producer, "producer");
   cons_pid = execpn(consumer, "consumer");
+  prod_pid = execpn(producer, "producer");
+  
 
   control_speed();
   sys_kill(prod_pid);
   sys_kill(cons_pid);
-  fifo_close(empty_fd);
-  fifo_close(full_fd);
+  sys_fifo_cl(empty_fd);
+  sys_fifo_cl(full_fd);
 }
 
 static void producer() {
-  int empty_fd = fifo_open(PRODUCER_FIFO);
-  int full_fd = fifo_open(CONSUMER_FIFO);
+  int empty_fd = sys_fifo_op(PRODUCER_FIFO);
+  int full_fd = sys_fifo_op(CONSUMER_FIFO);
 
   char message;
 
@@ -51,14 +52,14 @@ static void producer() {
     int item = rand_int();
     printf("Produced: %d\n", item);
     sleep(producerSleep * SLEEP_MULTIPLIER);
-    fifo_write(full_fd, &item, sizeof(int));
+    sys_write(full_fd, &item, sizeof(int));
     //write(full_fd, &item, sizeof(int));
   }
 }
 
 static void consumer() {
-  int empty_fd = fifo_open(PRODUCER_FIFO);
-  int full_fd = fifo_open(CONSUMER_FIFO);
+  int empty_fd = sys_fifo_op(PRODUCER_FIFO);
+  int full_fd = sys_fifo_op(CONSUMER_FIFO);
 
   int item;
   char message = EMPTY_SLOT;
@@ -68,7 +69,7 @@ static void consumer() {
     sys_read(full_fd,  &item, sizeof(int));
     printf("Consumed: %d\n", item);
     sleep(consumerSleep * SLEEP_MULTIPLIER);
-    fifo_write(empty_fd, &message, 1);
+    sys_write(empty_fd, &message, 1);
     //write(empty_fd, &message, 1);
   }
 }

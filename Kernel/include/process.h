@@ -15,6 +15,7 @@
 #define MAX_FDS 64
 #define MAX_DATA_PAGES 64
 #define MAX_PROCESS_NAME 64
+#define MAX_PROCESSES 128
 
 
 typedef struct c_process process;

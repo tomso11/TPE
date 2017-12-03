@@ -1,8 +1,8 @@
 OUTPUT_FORMAT("binary")
-ENTRY(_start)
+ENTRY(main)
 SECTIONS
 {
-	.text 0x800000 :
+	.text 0x400000 :
 	{
 		*(.text*)
 		. = ALIGN(0x1000);

@@ -227,7 +227,7 @@ int execute(const char *name, const char *args, int foreground) {
 
 /* Muestra en pantalla texto de ayuda al usuario, por ejemplo comandos existentes */
 static int help(int argc, char * argv[]){
-  printf("HELP \n The supported commands are clear, help, time, ps, philo, prodcon and prodcon2. \n");
+  printf("HELP \n The supported commands are clear, help, time, ps, philo and prodcon. \n");
 
 
 
