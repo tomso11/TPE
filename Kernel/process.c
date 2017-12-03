@@ -5,6 +5,7 @@
 #include "timer.h"
 #include "strings.h"
 #include "kernelMutex.h"
+#include "process_info.h"
 
 #define MAX_PROCESS_NAME 64
 #define CHECK_BIT(var,pos) ((var) & (1<<(pos)));
@@ -391,4 +392,14 @@ static uint64_t fill_stack(uint64_t rip, uint64_t stack_page, uint64_t params) {
 	frame->base =	0x000;
 
 	return (uint64_t) &frame->gs;
+}
+
+/* NOT IMPLEMENTED */
+void print_processes(){
+	int i;
+	process_info pi;
+	for(i=0; i<n_processes ; i++){
+		get_process_info_by_pid( process_table[i]->pid , &pi);
+	}
+	return;
 }

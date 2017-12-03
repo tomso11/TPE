@@ -10,6 +10,7 @@
 #include "executer.h"
 #include "process_info.h"
 #include "shell.h"
+#include "process.h"
 
 #include <stdint.h>
 
@@ -72,7 +73,7 @@ static void print_single_process(int pid) {
   process_info pi;
   char buffer[MAX_PROCESS_STRING];
 
-  if (get_process_info_by_pid(pid, &pi)) {
+  if (get_process_info_by_pid(&pi, pid)) {
     process_string(&pi, buffer);
     printf("%s\n", buffer);
   }
@@ -82,11 +83,14 @@ static int ps(int argc, char * argv[]) {
   int pid_array[MAX_PROCESSES], i;
 
   get_current_pids(pid_array);
+  if(pid_array[0] == NULL)
+    printf("vacio\n");
 
   for (i = 0; pid_array[i] != -1; i++) {
     print_single_process(pid_array[i]);
   }
 
+  //print_processes();
   return VALID;
 }
 
