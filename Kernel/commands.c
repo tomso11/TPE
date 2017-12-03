@@ -227,19 +227,23 @@ int execute(const char *name, const char *args, int foreground) {
 
 /* Muestra en pantalla texto de ayuda al usuario, por ejemplo comandos existentes */
 static int help(int argc, char * argv[]){
-  printf("HELP FUNCTION -- shows the principal User Commands and its description\n\n");
-  printf(" echo [args...]");
-  printf("    Write arguments to the standard output. Display the args, separated by a single space character\n");
-  printf("                   and followed by a newline, on the standard output.\n");
+  printf("HELP \n The supported commands are clear, help, time, ps, philo, prodcon and prodcon2. \n");
 
-  printf(" clear                Clear the terminal screen.\n");
-  printf(" time                 Display the current time on the standard output using 24hr format [hh:mm:ss]\n");
-  printf(" set_GMT [GMT]        Set new Greenwich Mean Time. Displays new current time afterwards\n");
-  printf(" prodcon    [size]    Commences producer consumer problem resolved with fifos.\n");
-  printf(" prodcon2   [size]    Commences producer consumer problem resolved with variable conditions.\n");
-  printf(" philo      [N]       Commences philosophers problem with N philosophers. Max %d.\n", MAX_PHILOSOPHERS);
-  printf(" shell                User shell.\n" );
-  printf(" fg         [PID]     Gives foreground to process.\n");
+
+
+  // printf("HELP FUNCTION -- shows the principal User Commands and its description\n\n");
+  // printf(" echo [args...]");
+  // printf("    Write arguments to the standard output. Display the args, separated by a single space character\n");
+  // printf("                   and followed by a newline, on the standard output.\n");
+
+  // printf(" clear                Clear the terminal screen.\n");
+  // printf(" time                 Display the current time on the standard output using 24hr format [hh:mm:ss]\n");
+  // printf(" set_GMT [GMT]        Set new Greenwich Mean Time. Displays new current time afterwards\n");
+  // printf(" prodcon    [size]    Commences producer consumer problem resolved with fifos.\n");
+  // printf(" prodcon2   [size]    Commences producer consumer problem resolved with variable conditions.\n");
+  // printf(" philo      [N]       Commences philosophers problem with N philosophers. Max %d.\n", MAX_PHILOSOPHERS);
+  // printf(" shell                User shell.\n" );
+  // printf(" fg         [PID]     Gives foreground to process.\n");
 
 
   return VALID;

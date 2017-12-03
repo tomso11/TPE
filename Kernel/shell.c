@@ -6,7 +6,7 @@
 #include "process_info.h"
 #include "executer.h"
 
-#define UNSUPPORTED_COMMAND "Unsupported Command\n"
+#define UNSUPPORTED_COMMAND "Not a valid command\n"
 #define INVALID_ARGUMENTS "Invalid Arguments\n"
 
 #define BACKGROUND_CHAR '&'
@@ -28,7 +28,7 @@ int shell() {
     int foreground;
 
     while (run) {
-        printf("> shell :");
+        printf("> shell:");
         readline_no_spaces(buffer, len);
         if (buffer[0] != '\0') { // Se escribió algo
           name_len = extract_cmd_name(cmd_name, buffer);
