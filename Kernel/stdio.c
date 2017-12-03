@@ -18,7 +18,7 @@ static int fprintformat(unsigned int fds, const char *format, va_list args);
 
 /* Imprime un caracter en el descriptor indicado */
 void fputchar(unsigned int fds, int c) {
-	write(fds, &c, 1);
+	sys_write(fds, &c, 1);
 }
 
 /* Imprime un caracter a salida estándar */
@@ -213,7 +213,7 @@ static void fill_buffer() {
 	unsigned char c; 
 	int i = 0;
 	do {
-		read(STDIN, &c, 1);
+		sys_read(STDIN, &c, 1);
 
 		if (c == '\b' && i > 0) { // si hay algo para borrar borra del buffer y la pantalla
 			i--;

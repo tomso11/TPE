@@ -70,7 +70,6 @@ void print_commands() {
   printf("e     Removes all philosophers instantly. Terminates philosophers problem.\n");
   printf("q     Removes philosophers one by one. Terminates philosophers problem.\n");
   printf("p     Toggles pause. Philosophers may not be modified during pause.\n");
-  printf("g     Toggles graphic and text mode.\n");
   putchar('\n');
 }
 

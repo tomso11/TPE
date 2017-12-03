@@ -57,8 +57,8 @@ static void executer(void ** params) {
 	/* ret_value = */ (*function)(argc, argv);
 
 	sys_free(memory);
-	set_foreground(ppid());
-	end();
+	sys_set_foreground(sys_ppid());
+	sys_end();
 }
 
 static void build_arguments(const char * arg, char * arg_strings, char * arguments[]) {

@@ -33,4 +33,8 @@ typedef struct process_info_c {
 void get_process_info (process_info * pi, process * p);
 
 int get_process_info_by_pid(process_info * pi, uint64_t pid);
+
+/* Hace un toString del proceso. Se pasa un puntero para que sea más eficiente. 
+** Devuelve la longitud. */
+int process_string(const process_info * p, char buffer[MAX_PROCESS_STRING]);
 #endif

@@ -9,6 +9,10 @@
 
 #define PHILO_PROCESS_NAME "philosopher"
 
+char * stateStrings[] = {"THINKING", "HUNGRY", "EATING", "DYING"};
+
+int prevPhilosopherCount;
+
 int critical_m;
 int philosopherCount = 0;
 int modify_cond_var;
@@ -41,14 +45,11 @@ static void (* render) (philosopher_data * philo_array, int philosopherCount);
 
 void listen_commands();
 
-int start_philosophers_problem(int graphic, int philoNumber) {
+int start_philosophers_problem(int philoNumber) {
   int i;
   philoNumber = philoNumber > MAX_PHILOSOPHERS ? MAX_PHILOSOPHERS : philoNumber;
 
-  if (graphic)
-    render = renderGraphics;
-  else
-    render = renderText;
+  render = renderText;
 
   critical_m = mutex_open(MAIN_MUTEX_NAME);
   modify_cond_var = cond_open(MODIFY_COND_NAME);
@@ -68,8 +69,6 @@ int start_philosophers_problem(int graphic, int philoNumber) {
 }
 
 void listen_commands() {
-  if (render == renderGraphics)
-    print_colors_instructions();
   char c;
   while((c = getchar())) {
     if(!isspace(c)) {
@@ -90,14 +89,6 @@ void listen_commands() {
         case 's':
         if (!is_paused())
           remove_philosopher();
-        break;
-        case 'g':
-          if (render == renderGraphics)
-            render = renderText;
-          else {
-            render = renderGraphics;
-            print_colors_instructions();
-          }
         break;
         case 'p':
           pause_philosophers();
@@ -144,7 +135,7 @@ static int add_philosopher() {
   if (philosopherCount < MAX_PHILOSOPHERS) {
     philo_index = philosopherCount;
     philosopherCount += 1;
-    itoa(philo_index, name + strlen(name) - 3, 10);
+    itoa(philo_index, name + str_len(name) - 3, 10);
 
     philosopher_data * pd = &philo_array[philo_index];
     pd->die = 0;
@@ -199,7 +190,7 @@ static void remove_all_philosophers() {
   mutex_lock(critical_m);
   int i, philoCountAux = philosopherCount;
   for (i = 0; i < philoCountAux; i++) {
-    kill(philo_array[i].pid);
+    sys_kill(philo_array[i].pid);
     mutex_close(philo_array[i].mut);
     cond_close(philo_array[i].cond_die);
   }
@@ -285,4 +276,29 @@ static void test(int i) {
     setState(i, EATING);
     mutex_unlock(philo_array[i].mut);
   }
+}
+
+void renderText(philosopher_data * philos, int philosopherCount) {
+  if (philosopherCount == 0)
+    printf("There are no philosophers left\n");
+  else {
+    for(int i = 0; i < philosopherCount; i++) {
+      printf("Philosopher %d: %s\n", i, stateStrings[philos[i].state]);
+    }
+    putchar('\n');
+  }
+
+  sleep(500);
+}
+
+
+void print_commands() {
+  printf("\nCommands\n");
+  printf("h     Prints this help.\n");
+  printf("w     Adds a philosopher.\n");
+  printf("s     Removes a philosopher.\n");
+  printf("e     Removes all philosophers instantly. Terminates philosophers problem.\n");
+  printf("q     Removes philosophers one by one. Terminates philosophers problem.\n");
+  printf("p     Toggles pause. Philosophers may not be modified during pause.\n");
+  putchar('\n');
 }

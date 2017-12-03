@@ -22,14 +22,12 @@ static void printWithTimeFormat(unsigned int n);
 static int isnum(const char *str);
 
 static int help(int argc, char * argv[]);
-static int fractals(int argc, char * argv[]);
 static int clear(int argc, char * argv[]);
 static int getTime(int argc, char * argv[]);
 static int echo(int argc, char * argv[]);
 
-static int philosophersProblem (int argc, char * argv[], int graphic);
+static int philosophersProblem (int argc, char * argv[]);
 static int philosophersProblemText (int argc, char * argv[]);
-static int philosophersProblemGUI (int argc, char * argv[]);
 
 static int producerConsumer (int argc, char * argv[]);
 static int producerConsumer2 (int argc, char * argv[]);
@@ -115,9 +113,9 @@ static int set_fg(int argc, char * argv[]) {
 
   pid = atoi(argv[0]);
 
-  yield();
+  sys_yield();
 
-  valid = set_foreground(pid);
+  valid = sys_set_foreground(pid);
 
   if (!valid) {
     printf("Invalid pid\n");
@@ -129,7 +127,6 @@ static int set_fg(int argc, char * argv[]) {
 /* COMMANDS ARRAY */
 static command commands[]= {{"help", help},
 							{"set_GMT", set_GMT},
-							{"fractals", fractals},
 							{"time", getTime},
 							{"clear", clear},
 							{"echo", echo},
@@ -137,8 +134,7 @@ static command commands[]= {{"help", help},
               {"bg_color", change_bg_color},
               {"test", test},
 							{"philo", philosophersProblemText},
-              {"philogui", philosophersProblemGUI},
-							{"prodcon", producerConsumer},
+          		{"prodcon", producerConsumer},
               {"prodcon2", producerConsumer2},
               {"write", write_test},
               {"read", read_test},
@@ -177,8 +173,8 @@ static int write_test(int argc, char * argv[]) {
   printf("Escribiendo a fifo con fds %d\n", fds);
 
   for(i = 0; i < argc; i++) {
-    write(fds, argv[i], strlen(argv[i]));
-    write(fds, " ", 1);
+    sys_write(fds, argv[i], str_len(argv[i]));
+    sys_write(fds, " ", 1);
   }
 
   return VALID;
@@ -191,7 +187,7 @@ static int read_test(int argc, char * argv[]) {
 
   printf("Leyendo de fifo con fds %d\n", fds);
 
-  n = read(fds, buffer, 4);
+  n = sys_read(fds, buffer, 4);
 
   buffer[n] = '\0';
 
@@ -221,7 +217,7 @@ int execute(const char *name, const char *args, int foreground) {
       valid = VALID;
       pid = execp (commands[i].function, args, name);
       if (foreground)
-			 set_foreground(pid);
+			 sys_set_foreground(pid);
     }
 	}
 	return valid;
@@ -239,15 +235,9 @@ static int help(int argc, char * argv[]){
   printf(" clear                Clear the terminal screen.\n");
   printf(" time                 Display the current time on the standard output using 24hr format [hh:mm:ss]\n");
   printf(" set_GMT [GMT]        Set new Greenwich Mean Time. Displays new current time afterwards\n");
-  printf(" fractals [*option]   Display a new fractal drawing on the standard output.\n");
-  printf("                      If a specific fractal is desired, a number from 1 to %d may be sent as parameter.\n", fractals_size());
-  printf("                      If no parameter is sent a random fractal will be drawed.\n");
-  printf(" char_color [r,g,b]   Changes character color.\n");
-  printf(" bg_color   [r,g,b]   Changes background color. Clears screen.\n");
   printf(" prodcon    [size]    Commences producer consumer problem resolved with fifos.\n");
   printf(" prodcon2   [size]    Commences producer consumer problem resolved with variable conditions.\n");
   printf(" philo      [N]       Commences philosophers problem with N philosophers. Max %d.\n", MAX_PHILOSOPHERS);
-  printf(" philogui   [N]       Commences philosophers problem with graphics.\n");
   printf(" shell                User shell.\n" );
   printf(" fg         [PID]     Gives foreground to process.\n");
 
@@ -319,34 +309,6 @@ static int echo(int argc, char * argv[]) {
   return VALID;
 }
 
-/*
-** Muestra en pantalla imagenes de fractales.
-** En caso de recibir un numero como parámetro muestra el fractal correspondiente,
-** si no se recibió ningun parametro muestra un fractal al azar
-*/
-
-static int fractals(int argc, char * argv[]) {
-  int index = -1;
-
-  if(argc > 1) {
-    printf("Usage: fractals [fractal_num]\n");
-    return INVALID_ARGS;
-  }
-
-  if (argc == 0) // No se enviaron parametros --> fractal al azar
-    index = seconds() % fractals_size();
-  else if (isnum(argv[0]))
-    index = atoi(argv[0])-1;
-
-  if (index < 0 || index >= fractals_size()) {
-    printf("Fractal number must be between 1 and %d\n", fractals_size());
-    return INVALID_ARGS;
-  }
-
-  draw_fractal(index);
-
-  return VALID;
-}
 
 /* Cambia el color de la letra */
 static int change_char_color (int argc, char * argv[]) {
@@ -387,7 +349,7 @@ static int change_bg_color (int argc, char * argv[]) {
   return INVALID_ARGS;
 }
 
-static int philosophersProblem (int argc, char * argv[], int graphic) {
+static int philosophersProblem (int argc, char * argv[]) {
 	int p = DEFAULT_PHILOSOPHERS;
 
 	if (isnum(argv[0]))
@@ -398,16 +360,12 @@ static int philosophersProblem (int argc, char * argv[], int graphic) {
 		return INVALID_ARGS;
   }
 
-	start_philosophers_problem(graphic, p);
+	start_philosophers_problem(p);
 	return VALID;
 }
 
 static int philosophersProblemText (int argc, char * argv[]) {
-  return philosophersProblem(argc, argv, 0);
-}
-
-static int philosophersProblemGUI (int argc, char * argv[]) {
-  return philosophersProblem(argc, argv, 1);
+  return philosophersProblem(argc, argv);
 }
 
 static int producerConsumer (int argc, char * argv[]) {
@@ -436,13 +394,13 @@ static int producerConsumer2 (int argc, char * argv[]) {
     return INVALID_ARGS;
   }
 
-  start_producer_consumer_problem2(b);
+  start_producer_consumer_problem(b);
   return VALID;
 }
 
 static int testFifos (int argc, char * argv[]) {
 	execpn(processRead, "fifo_test_read");
-  yield();
+  sys_yield();
 	execpn(processWrite, "fifo_test_write");
 	return VALID;
 }
@@ -453,7 +411,7 @@ static int processWrite() {
 	while(1) {
     printf("Trying to write\n");
     sleep(5000);
-		write(fd, &c, 1);
+		sys_write(fd, &c, 1);
 		printf("WROTE\n");
 	}
   return 0;
@@ -465,7 +423,7 @@ static int processRead() {
 	while(1) {
 		sleep(1000);
 		printf("Trying to read\n");
-		read(fd, &c, 1);
+		sys_read(fd, &c, 1);
 		printf("READ %c ASCII %d\n", c, c);
 	}
   return 0;
@@ -476,7 +434,7 @@ static int kill_command(int argc, char * argv[]) {
   int valid = 0;
 
   if (pid != 0)
-    valid = kill(pid);
+    valid = sys_kill(pid);
 
   if (valid)
     printf("Killed process with PID %d\n", pid);

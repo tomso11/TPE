@@ -32,9 +32,8 @@ static int clear(int argc, char * argv[]);
 static int getTime(int argc, char * argv[]);
 static int echo(int argc, char * argv[]);
 
-static int philosophersProblem (int argc, char * argv[], int graphic);
+static int philosophersProblem (int argc, char * argv[]);
 static int philosophersProblemText (int argc, char * argv[]);
-static int philosophersProblemGUI (int argc, char * argv[]);
 
 static int producerConsumer (int argc, char * argv[]);
 static int producerConsumer2 (int argc, char * argv[]);
@@ -142,7 +141,6 @@ static command commands[]= {{"help", help},
               {"bg_color", change_bg_color},
               {"test", test},
 							{"philo", philosophersProblemText},
-              {"philogui", philosophersProblemGUI},
 							{"prodcon", producerConsumer},
               {"prodcon2", producerConsumer2},
               {"write", write_test},
@@ -244,15 +242,9 @@ static int help(int argc, char * argv[]){
   printf(" clear                Clear the terminal screen.\n");
   printf(" time                 Display the current time on the standard output using 24hr format [hh:mm:ss]\n");
   printf(" set_GMT [GMT]        Set new Greenwich Mean Time. Displays new current time afterwards\n");
-  printf(" fractals [*option]   Display a new fractal drawing on the standard output.\n");
-  printf("                      If a specific fractal is desired, a number from 1 to %d may be sent as parameter.\n", fractals_size());
-  printf("                      If no parameter is sent a random fractal will be drawed.\n");
-  printf(" char_color [r,g,b]   Changes character color.\n");
-  printf(" bg_color   [r,g,b]   Changes background color. Clears screen.\n");
   printf(" prodcon    [size]    Commences producer consumer problem resolved with fifos.\n");
   printf(" prodcon2   [size]    Commences producer consumer problem resolved with variable conditions.\n");
   printf(" philo      [N]       Commences philosophers problem with N philosophers. Max %d.\n", MAX_PHILOSOPHERS);
-  printf(" philogui   [N]       Commences philosophers problem with graphics.\n");
   printf(" shell                User shell.\n" );
   printf(" fg         [PID]     Gives foreground to process.\n");
 
@@ -392,7 +384,7 @@ static int change_bg_color (int argc, char * argv[]) {
   return INVALID_ARGS;
 }
 
-static int philosophersProblem (int argc, char * argv[], int graphic) {
+static int philosophersProblem (int argc, char * argv[]) {
 	int p = DEFAULT_PHILOSOPHERS;
 
 	if (isnum(argv[0]))
@@ -403,16 +395,12 @@ static int philosophersProblem (int argc, char * argv[], int graphic) {
 		return INVALID_ARGS;
   }
 
-	start_philosophers_problem(graphic, p);
+	start_philosophers_problem(p);
 	return VALID;
 }
 
 static int philosophersProblemText (int argc, char * argv[]) {
-  return philosophersProblem(argc, argv, 0);
-}
-
-static int philosophersProblemGUI (int argc, char * argv[]) {
-  return philosophersProblem(argc, argv, 1);
+  return philosophersProblem(argc, argv);
 }
 
 static int producerConsumer (int argc, char * argv[]) {

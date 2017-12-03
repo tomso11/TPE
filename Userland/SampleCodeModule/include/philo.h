@@ -28,7 +28,7 @@ typedef struct philosopher_data {
   int cond_die;
 } philosopher_data;
 
-int start_philosophers_problem(int graphic, int philoNumber);
+int start_philosophers_problem(int philoNumber);
 
 void renderText(philosopher_data * philos, int philosopherCount);
 

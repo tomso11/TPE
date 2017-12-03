@@ -42,14 +42,11 @@ static void (* render) (philosopher_data * philo_array, int philosopherCount);
 
 void listen_commands();
 
-int start_philosophers_problem(int graphic, int philoNumber) {
+int start_philosophers_problem(int philoNumber) {
   int i;
   philoNumber = philoNumber > MAX_PHILOSOPHERS ? MAX_PHILOSOPHERS : philoNumber;
 
-  if (graphic)
-    render = renderGraphics;
-  else
-    render = renderText;
+  render = renderText;
 
   critical_m = mutex_open(MAIN_MUTEX_NAME);
   modify_cond_var = cond_open(MODIFY_COND_NAME);
