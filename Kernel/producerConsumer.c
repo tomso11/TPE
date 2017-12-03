@@ -33,8 +33,8 @@ void start_producer_consumer_problem(int buf_size) {
   cons_pid = execpn(consumer, "consumer");
 
   control_speed();
-  kill(prod_pid);
-  kill(cons_pid);
+  sys_kill(prod_pid);
+  sys_kill(cons_pid);
   fifo_close(empty_fd);
   fifo_close(full_fd);
 }
@@ -47,7 +47,7 @@ static void producer() {
 
   /* Lee espacios vacíos en empty_fd y escribe ítems en full_fd */
   while(1) {
-    read(empty_fd,  &message, 1);
+    sys_read(empty_fd,  &message, 1);
     int item = rand_int();
     printf("Produced: %d\n", item);
     sleep(producerSleep * SLEEP_MULTIPLIER);
@@ -65,7 +65,7 @@ static void consumer() {
 
   /* Lee ítems en full_fd y escribe slots vacíos en empt_fd */
   while(1) {
-    read(full_fd,  &item, sizeof(int));
+    sys_read(full_fd,  &item, sizeof(int));
     printf("Consumed: %d\n", item);
     sleep(consumerSleep * SLEEP_MULTIPLIER);
     fifo_write(empty_fd, &message, 1);

@@ -7,6 +7,8 @@
 
 #define PAGE 0x1000
 
+#define NULL 0
+
 typedef int (*entry_point) (int, char **);
 
 static void executer(void ** params);
@@ -17,7 +19,7 @@ int execpn(void * function_ptr, const char * name) {
 }
 
 int execp(void * function_ptr, const char * arg, const char * name) {
-	void * memory = malloc(PAGE);
+	void * memory = sys_malloc(PAGE);
 	char ** arguments = memory;
 	char * arg_strings = memory + MAX_ARGS * sizeof(char *);
 	int pid;
@@ -26,17 +28,17 @@ int execp(void * function_ptr, const char * arg, const char * name) {
 
 	build_arguments(arg, arg_strings, arguments + 1);
 
-	pid = exec(executer, (uint64_t) memory, name);
+	pid = sys_exec(executer, (uint64_t) memory, name);
 
-	yield();
+	sys_yield();
 
-	free(memory);
+	sys_free(memory);
 
 	return pid;
 }
 
 static void executer(void ** params) {
-	void ** memory = malloc(PAGE);
+	void ** memory = sys_malloc(PAGE);
 	entry_point function;
 	char ** argv;
 	int argc;
@@ -54,7 +56,7 @@ static void executer(void ** params) {
 	/* Si bien no se ultiliza el valor de retorno, se deja explicito como seria su uso */
 	/* ret_value = */ (*function)(argc, argv);
 
-	free(memory);
+	sys_free(memory);
 	set_foreground(ppid());
 	end();
 }
