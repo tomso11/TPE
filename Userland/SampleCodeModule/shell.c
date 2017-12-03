@@ -1,78 +1,160 @@
 #include "stdio.h"
-#include "strings.h"
-#include "fractals.h"
 #include "shell.h"
-#include "commands.h"
-#include "stdlib.h"
-#include "syscalls.h"
-#include "process_info.h"
-#include "executer.h"
 
-#define UNSUPPORTED_COMMAND "Unsupported Command\n"
-#define INVALID_ARGUMENTS "Invalid Arguments\n"
+void helpShell(){
+	char ** s = malloc(sizeof(char *));
+	char * help = "Help\n the commands are clear, help, echo, ls and man\n write man \"comand\" for more information";
+	s[0]= help;
+	printFF("%s",s, NULL);
+	putchar('\n');
+	
+}
+void ls(){
+	char ** s = malloc(sizeof(char *));
+	char * ls = "Modules: dummy, editor, shell, fortune";
+	s[0]= ls;
+	printFF("%s",s, NULL);
+	putchar('\n');
+}
+void man(char * buffer){
+	char ** s = malloc(sizeof(char *));
+	char * man;
+	if(!strcmp("help", buffer)){
+		man = "HELP\n use this comand to see all the comands";
+	}
+	else if(!strcmp("clear", buffer)){
+		man = "CLEAR\n clear the video use by the shell";
+	}
+	else if(!strcmp("echo", buffer)){
+		man = "ECHO\n Use \"echo on\" to turn on the echo and \"echo off\" to turn it off  ";
+	}
+	else if(!strcmp("ls", buffer)){
+		man = "LS\n display all modules";
+	}
+	else{
+		man = "invalid command for man";
+	}
+	s[0] = man;
+	printFF("%s",s, NULL);
+	putchar('\n');
 
-#define BACKGROUND_CHAR '&'
-
-#define MAX_CMD_SIZE 256
-
-static int extract_cmd_name(char * cmd_name, const char * str);
-static void handle_validity(int valid);
-static int check_foreground(char * buffer);
-
-int shell() {
-    int run = 1;
-    char buffer[MAX_CMD_SIZE];
-    char cmd_name[MAX_CMD_SIZE];
-    int len = MAX_CMD_SIZE;
-    int name_len;
-    int valid;
-    int arguments_flag; // 1 si se enviaron argumentos
-    int foreground;
-
-    while (run) {
-        printf("> shell :");
-        readline_no_spaces(buffer, len);
-        if (buffer[0] != '\0') { // Se escribió algo
-          name_len = extract_cmd_name(cmd_name, buffer);
-          foreground = check_foreground(buffer + name_len);
-          arguments_flag = buffer[name_len] != '\0';
-          valid = execute(cmd_name, buffer+name_len+arguments_flag, foreground); // Nombre y argumentos
-          handle_validity(valid);
-        }
-    }
-
-    return 0;
 }
 
-static int check_foreground(char * buffer) {
-  int len = strlen(buffer);
+void run(char * c){
+	if(!strcmp("dummy", c)){
+		sys_call(7,0,1);
+	}
+	else if(!strcmp("editor",c)){
+		sys_call(7,0,2);
+	}
+	else if(!strcmp("fortune",c)){
+		sys_call(7,0,3);
+	}
+	return;
+}
 
-  if (buffer[len-1] == BACKGROUND_CHAR && (len == 1 || buffer[len-2] == ' ')) {
-    buffer [len - (len == 1 ? 1 : 2)] = '\0';
-    return 0;
-  }
+void echoShellON(){
+	sys_call(6,0,1);
+}
+void echoShellOFF(){
+	sys_call(6,0,0);
+}
 
-  return 1;
+void error(char * buffer){
+	char ** s = malloc(sizeof(char *));
+	s[0] = buffer;
+	printFF("%s", s, NULL);
+	putchar(':');
+	putchar(' ');
+	char * error = "command not found";
+	s[0]= error;
+	printFF("%s",s, NULL);
+	putchar('\n');
+}
+
+void clearShell(){
+	sys_call(5,0,0);
+}
+
+void changeToUserEnvirnment(){
+	sys_call(8,6,4);
+	undoBackwards();
+}
+
+void changeToSehllEnvironment(){
+	sys_call(8,0,4);
+}
+
+void undoBackwards(){
+	sys_call(9,7,0);
 }
 
 
-/* Retorna la longitud del comando ingresado y guarda su contenido en un vector recibido como parámetro */
-static int extract_cmd_name(char * cmd_name, const char * str) {
-  int i;
-  for (i = 0; str[i] != '\0' && str[i] != ' '; i++)
-    cmd_name[i] = str[i];
-  cmd_name[i] = '\0';
-  return i;
+
+//shell
+
+void printShellComand(){
+	char ** s = malloc(sizeof(char *));
+	char * str = "shell>";
+	s[0] = str;
+	printFF("%s",s,NULL);
+}
+int main(){
+	char ** ss = malloc(sizeof(char *));
+	char * sos = malloc(2500);
+	ss[0] = sos;
+	while(1){
+		putchar('\n');
+		changeToSehllEnvironment();
+		printShellComand();
+		changeToUserEnvirnment();
+		if(scanFF("%s",ss, NULL)==0){
+			changeToSehllEnvironment();
+			parser(sos);
+		}else {
+			char ** s = malloc(sizeof(char *));
+			char * help = "ScanFF Buffer OverFlow";
+			s[0]= help;
+			putchar('\n');
+			printFF("%s",s, NULL);
+		}
+
+	}
+	
 }
 
-/* Imprime en pantalla en caso de haber ingresado un comando inválido */
-static void handle_validity(int valid) {
-  switch (valid) {
-    case UNSUPPORTED:
-      printf("%s", UNSUPPORTED_COMMAND);
-      break;
-    case INVALID_ARGS:
-      printf("%s", INVALID_ARGUMENTS);
-      break;
-  }
-}
+void parser(char * buffer){
+	if(!strcmp("help", buffer)){
+		helpShell();
+		return;
+	}
+	if(!strcmp("clear", buffer)){
+		clearShell();
+		return;
+	}
+	if(!strcmpN("echo", buffer,4)){
+		if(!strcmp("on", buffer+5)){
+			echoShellON();
+			return;
+		}
+		echoShellOFF();
+		return;
+	}
+	if(*buffer == '.' && *(buffer+1) == '\\'){
+		run((buffer+2));
+		return;
+	}
+	if(!strcmpN("man", buffer,3)){
+			man(buffer+4);
+			return;
+	}
+	if(!strcmp("ls", buffer)){
+		ls();
+		return;
+	}
+	if(*buffer == '\n'){
+		return;
+	}
+	error(buffer);
+	
+	}
